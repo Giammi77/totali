@@ -13,16 +13,19 @@ class Table(TotalizeTable):
         self.sysFields(tbl,id=False, ins=False, upd=False, ldel=False,user_ins=False)
         tbl.column('codekey',name_long='key')
         tbl.column('pratica_id',size = '22', name_long = '!!Pratica',
-                    totalize_key=True).relation('ttt.pratica.id', relation_name = 'totale_anno', mode = 'foreignkey')
+                    totalize_key='*').relation('ttt.pratica.id', relation_name = 'totale_anno', mode = 'foreignkey')
         tbl.column('anno_mese', size=':7', name_long='Anno-Mese', totalize_key='*')
 
         tbl.column('debito', dtype = 'money' , name_long = '!![it]Debito',totalize_value=True)        
         tbl.formulaColumn('totale_anno_mese_caption',"@pratica_id.prat_num || ' - '|| $anno_mese")
         
     def totalize_key_anno_mese(self, contabile, **kwargs):
-        dc=contabile.get('data_contabile')
-        return '%s-%02i' %(dc.year,dc.month)
+        data=contabile.get('data') or self.db.table('ttt.contabile').readColumns(columns='$data',where='$id=:id',id=contabile['id'],virtual_columns='$data')  
+        return '%s-%02i' %(data.year,data.month)
 
+    def totalize_key_pratica_id(self, contabile, **kwargs):
+        pratica_id=self.db.table('ttt.contabile').readColumns(columns='$pratica_id',where='$id=:id',id=contabile['id'],virtual_columns='$pratica_id')  
+        return pratica_id 
 
     def totalize_realign_sql(self,empty=False):
         if empty:

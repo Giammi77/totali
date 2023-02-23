@@ -8,7 +8,6 @@ class Table(object):
         tbl.column('evento_id',size='22', group='_', name_long='Evento'
                     ).relation('ttt.evento.id', relation_name='contabile', mode='foreignkey', onDelete='raise')
         tbl.column('debito', dtype='N', name_long='Debito')
-        tbl.column('pratica_id',size='22', group='_', name_long='Pratica'
-                    ).relation('ttt.pratica.id', relation_name='contabile', mode='foreignkey', onDelete='raise')
-        tbl.column('data_contabile', dtype='D', name_long='Data Contabile')
+        tbl.aliasColumn('pratica_id','@evento_id.pratica_id', static=True)
+        tbl.aliasColumn('data','@evento_id.data',static=True)
         tbl.aliasColumn('prat_num','@evento_id.prat_num')
